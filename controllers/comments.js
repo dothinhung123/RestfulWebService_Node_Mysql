@@ -13,7 +13,7 @@ router.get('/:id',(req,res)=>connection.connect(function(){
     if(err) throw err;
 
     const value = result[0]
-    res.status(200).send({...value,link:`${id}`})
+    res.status(200).send({...value,link:`/posts/${id}`})
 
     return ;
    
@@ -55,7 +55,7 @@ router.get('/',(req,res)=>connection.connect(function() {
     
       const data = JSON.parse(JSON.stringify(result))
 
-      data.forEach(element=>element.links = element.id);
+      data.forEach(element=>element.links = `/comments/${element.id}`);
   
       const value = {
         data:data,

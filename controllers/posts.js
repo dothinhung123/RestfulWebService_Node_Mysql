@@ -14,17 +14,17 @@ router.get('/:id',(req,res)=>connection.connect(function(){
     if(err) throw err;
 
     const value = result[0]
-    res.status(200).send({...value,link:`${id}`})
+    res.status(200).send({...value,link:`/posts/${id}`})
     return ;
   })
 }))
 router.post('/',(req,res)=>connection.connect(function(){
   const title = req.body.title;
   const content = req.body.content;
-  connection.query("INSERT INTO posts(title,content) Values (?,?,?)",[title,content],function(err,result,fields){
+  connection.query("INSERT INTO posts(title,content) Values (?,?)",[title,content],function(err,result,fields){
     if(err) throw err;
-    res.status(201).send({...result})
-
+    
+    res.status(201).redirect(`/posts/${result.insertId}`)
 
     return ;
 
@@ -38,7 +38,7 @@ router.get('/',(req,res)=>connection.connect(function() {
   
     const data = JSON.parse(JSON.stringify(result))
 
-    data.forEach(element=>element.links = element.id);
+    data.forEach(element=>element.links = `/posts/${element.id}`);
 
     const value = {
       data:data,
@@ -64,15 +64,34 @@ router.get('/',(req,res)=>connection.connect(function() {
 
   );
 }))
-router.put('/:id',(req,res)=>connection.connect(function(){
+router.patch('/:id',(req,res)=>connection.connect(function(){
   const id = req.params.id;
-  const title = req.body.title;
-  const content = req.body.content;
-  connection.query('UPDATE posts SET title = ?, content = ? WHERE id = ?',[title,content,id],function(err,result,fields){
-    if(err) throw err;
-    res.send(result);
-    return ;
-  })
+  const title = req.query.title;
+  const content = req.query.content;
+  if(title!=null && content==null){
+    connection.query('UPDATE posts SET title = ? WHERE id = ?',[title,id],function(err,result,fields){
+      if(err) throw err;
+      res.status(200).redirect(`/posts/${id}`)
+      return ;
+    })
+     
+  }
+  else if(title==null && content !=null){
+    connection.query('UPDATE posts SET content = ? WHERE id = ?',[content,id],function(err,result,fields){
+      if(err) throw err;
+      res.status(200).redirect(`/posts/${id}`)
+      return ;
+    })
+  }
+  else if(title!=null && content!=null){
+    connection.query('UPDATE posts SET title = ? ,content = ? WHERE id = ?',[title,content,id],function(err,result,fields){
+      if(err) throw err;
+      res.status(200).redirect(`/posts/${id}`)
+      return ;
+    })
+ 
+  }
+ 
 }))
 router.delete("/:id",(req,res)=>connection.connect(function(){
   const id = req.params.id;
