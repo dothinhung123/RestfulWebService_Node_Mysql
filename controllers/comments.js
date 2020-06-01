@@ -24,7 +24,8 @@ router.post('/',(req,res)=>connection.connect(function(){
   const post_id = req.body.post_id;
   connection.query("INSERT INTO comments(comment,post_id) Values (?,?)",[comment,post_id],function(err,result,fields){
     if(err) throw err;
-    res.status(201).send({...result})
+    res.status(201).redirect(`/comments/${result.insertId}`)
+
 
 
     return ;
@@ -35,23 +36,7 @@ router.get('/',(req,res)=>connection.connect(function() {
     connection.query("SELECT * FROM comments", function (err, result, fields) {
       if (err) throw err;
     
-      // for(let i= 0 ;i<result.length;i++){
-      //   const inisiateValue = result[i]
-      //   console.log(result[i])
-      //   const data = [{...inisiateValue,link:result[i].id}]
-      //   const value = {
-      //     data:data,
-      //     total_count:data.length,
-      //     limit:10,
-      //     pagination: {
-      //       first_page: "/comments?page=1",
-      //       last_page: "/comments?page=1",
-      //       co
-      mment:1
-      //      }
-           
-
-      //   }
+     
     
       const data = JSON.parse(JSON.stringify(result))
 
@@ -81,15 +66,16 @@ router.get('/',(req,res)=>connection.connect(function() {
 
     );
   }))
-  router.put('/:id',(req,res)=>connection.connect(function(){
+  router.patch('/:id',(req,res)=>connection.connect(function(){
     const id = req.params.id;
-    const comment = req.body.comment;
-    const post_id = req.body.post_id;
-    connection.query('UPDATE comments SET comment = ?, post_id= ? WHERE id = ?',[comment, post_id,id],function(err,result,fields){
-      if(err) throw err;
-      res.send(result);
-      return ;
-    })
+    const comment = req.query.comment;
+    if(comment!=null){
+      connection.query('UPDATE comments SET comment = ? WHERE id = ?',[comment,id],function(err,result,fields){
+        if(err) throw err;
+        res.status(200).redirect(`/comments/${id}`)
+        return ;
+      })
+    }
   }))
   router.delete("/:id",(req,res)=>connection.connect(function(){
     const id = req.params.id;
