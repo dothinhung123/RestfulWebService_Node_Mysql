@@ -64,6 +64,13 @@ router.get('/',(req,res)=>connection.connect(function() {
 
   );
 }))
+router.get('/:post_id/comments',(req,res)=>connection.connect(function(){
+  const post_id = req.params.post_id;
+  connection.query("SELECT * from comments where post_id",[post_id],function(err,result,fields){
+    if(err) throw err;
+    res.send(result);
+  })
+}))
 router.patch('/:id',(req,res)=>connection.connect(function(){
   const id = req.params.id;
   const title = req.query.title;
@@ -105,6 +112,7 @@ router.delete("/:id",(req,res)=>connection.connect(function(){
     return;
   
   } )
+
 
 }))
   module.exports = router
